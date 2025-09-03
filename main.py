@@ -1,4 +1,5 @@
-from fastapi import FastAPI,Response,HTTPException
+from fastapi import FastAPI,HTTPException
+from starlette.responses import Response, JSONResponse
 from pydantic import BaseModel
 from typing import List
 
@@ -42,20 +43,25 @@ def read_health():
 
 @app.post("/phone")
 def create_phone(phone: List[Phone]):
-    for p in phone:
-        phone_db.append(p)
-    return Response(content=phone_db,media_type="application/json",status_code=201)
+    
+    phone_db.extend(phone)
+    phone_serialized = serialize_phone()
+    return JSONResponse(content=phone_serialized, status_code=201, media_type="application/json")
 # end def
-def add_phone(phone: List[Phone]):
-    for p in phone:
-        phone_db.append(p)
-    return phone_db
+
+
+def serialize_phone():
+    phone_serialized = []
+    for phone in phone_db:
+        phone_serialized.append(phone.model_dump())
+    return phone_serialized
+
+
+
+
 @app.get("/phones")
-def get_phone(id: int):
-    """
-    Purpose: one
-    """
-    return phone_db
+def list_posts():
+    return JSONResponse(content=serialize_phone(), status_code=200, media_type="application/json")
     
 # end def
 @app.get("/phones/{id}")
@@ -64,12 +70,5 @@ def get_phone_by_id(id):
     if (result == None):
         raise HTTPException(status_code=404,detail="Phone not found")
     # end if
-    return Response(content=result.json(),media_type="application/json")
-@app.put("/phones/{phone_id}/characteristics")
-def update_phone(phone_id: int,characteristics: Charateristic):
-    result: Phone = phone_db[id]
-    if (result == None):
-        raise HTTPException(status_code=404,detail="Phone not found")
-    # end if
-    result.characteristics = characteristics
-    return Response(content=result.json(),media_type="application/json")
+    return JSONResponse(content=result,media_type="application/json")
+
