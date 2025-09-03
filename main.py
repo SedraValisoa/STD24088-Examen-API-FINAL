@@ -75,6 +75,5 @@ def get_phone_by_id(id):
     # end for
     if (result == None):
         raise HTTPException(status_code=404,detail="Phone not found")
-    # end if
 return JSONResponse(content=result,media_type="application/json")
 
