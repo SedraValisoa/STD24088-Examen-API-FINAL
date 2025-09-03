@@ -66,9 +66,15 @@ def list_posts():
 # end def
 @app.get("/phones/{id}")
 def get_phone_by_id(id):
-    result: Phone = phone_db[id]
+    result: Phone
+    for phone in phone_db:
+        if (phone.id == id):
+            result = phone
+            break
+        # end if
+    # end for
     if (result == None):
         raise HTTPException(status_code=404,detail="Phone not found")
     # end if
-    return JSONResponse(content=result,media_type="application/json")
+return JSONResponse(content=result,media_type="application/json")
 
